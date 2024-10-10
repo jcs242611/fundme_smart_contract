@@ -98,10 +98,10 @@ describe("Fund Me Smart Contract", function () {
       acct2.address
     );
 
-    const amountToWithraw = ethers.parseUnits("5", "gwei");
+    const amountToWithdraw = ethers.parseUnits("5", "gwei");
     await fundMe
       .connect(acct1)
-      .withdrawToDistinctAddress(acct2.address, amountToWithraw);
+      .withdrawToDistinctAddress(acct2.address, amountToWithdraw);
 
     const contractBalanceAfterWithdraw = await ethers.provider.getBalance(
       contractAddress
@@ -111,10 +111,10 @@ describe("Fund Me Smart Contract", function () {
     );
 
     expect(acct2BalanceAfterWithdraw).to.equal(
-      acct2BalanceBeforeWithdraw + amountToWithraw
+      acct2BalanceBeforeWithdraw + amountToWithdraw
     );
     expect(contractBalanceAfterWithdraw).to.equal(
-      contractBalanceBeforeWithdraw - amountToWithraw
+      contractBalanceBeforeWithdraw - amountToWithdraw
     );
 
     const [funders, allAmounts] = await fundMe
