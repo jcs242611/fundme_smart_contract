@@ -1,6 +1,14 @@
 const { expect } = require("chai");
-const { deployFundMe } = require("../scripts/deployHelper");
 const { ethers } = require("hardhat");
+
+async function deployFundMe() {
+  const FundMe = await ethers.getContractFactory("FundMe");
+  const fundMe = await FundMe.deploy();
+
+  const accounts = await ethers.getSigners();
+
+  return { contract: fundMe, accounts: accounts.slice(0, 3) };
+}
 
 describe("Fund Me Smart Contract", function () {
   let fundMe;
@@ -8,7 +16,7 @@ describe("Fund Me Smart Contract", function () {
 
   beforeEach(async () => {
     const deployment = await deployFundMe();
-    fundMe = deployment.fundMe;
+    fundMe = deployment.contract;
     [acct1, acct2, acct3] = deployment.accounts;
   });
 
