@@ -48,7 +48,6 @@ describe("Fund Me Smart Contract", function () {
       .fund({ value: ethers.parseUnits("18", "gwei") });
 
     const contractAddress = await fundMe.getAddress();
-
     const contractBalanceBeforeWithdraw = await ethers.provider.getBalance(
       contractAddress
     );
@@ -75,12 +74,53 @@ describe("Fund Me Smart Contract", function () {
     const [funders, allAmounts] = await fundMe
       .connect(acct1)
       .getAllFunderAmounts();
-    for (let i = 0; i < funders.length; i++) {
-      expect(allAmounts[i]).to.equal(0);
-    }
+    for (let i = 0; i < funders.length; i++) expect(allAmounts[i]).to.equal(0);
   });
 
-  it("Owner able to withdraw funds to a distinct address", async () => {});
+  it("Owner able to withdraw funds to a distinct address", async () => {
+    await fundMe
+      .connect(acct2)
+      .fund({ value: ethers.parseUnits("25", "gwei") });
 
-  it("Failed Withdraw attempt for wrong owner", async () => {});
+    const contractAddress = await fundMe.getAddress();
+    const contractBalanceBeforeWithdraw = await ethers.provider.getBalance(
+      contractAddress
+    );
+    const acct2BalanceBeforeWithdraw = await ethers.provider.getBalance(
+      acct2.address
+    );
+
+    const amountToWithraw = ethers.parseUnits("5", "gwei");
+    await fundMe
+      .connect(acct1)
+      .withdrawToDistinctAddress(acct2.address, amountToWithraw);
+
+    const contractBalanceAfterWithdraw = await ethers.provider.getBalance(
+      contractAddress
+    );
+    const acct2BalanceAfterWithdraw = await ethers.provider.getBalance(
+      acct2.address
+    );
+
+    expect(acct2BalanceAfterWithdraw).to.equal(
+      acct2BalanceBeforeWithdraw + amountToWithraw
+    );
+    expect(contractBalanceAfterWithdraw).to.equal(
+      contractBalanceBeforeWithdraw - amountToWithraw
+    );
+
+    const [funders, allAmounts] = await fundMe
+      .connect(acct1)
+      .getAllFunderAmounts();
+    let totalAmounts = 0n;
+    for (let i = 0; i < funders.length; i++) totalAmounts += allAmounts[i];
+
+    expect(totalAmounts).to.equal(contractBalanceAfterWithdraw);
+  });
+
+  it("Failed Withdraw attempt for wrong owner", async () => {
+    await expect(fundMe.connect(acct3).withdraw()).to.be.revertedWith(
+      "Only Owner can peform this action!"
+    );
+  });
 });
