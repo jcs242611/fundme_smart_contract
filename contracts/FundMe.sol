@@ -41,8 +41,8 @@ contract FundMe {
         uint256 contractBalance = address(this).balance;
         require(contractBalance >= _amount, "Insufficient contract balance!");
 
-        (bool sucess, ) = _address.call{value: _amount}("");
-        require(sucess, "Failed to send Ether!");
+        (bool success, ) = _address.call{value: _amount}("");
+        require(success, "Failed to send Ether!");
         resetSomeFunderAmounts(_amount);
 
         emit WithdrawalLog(_address, _amount);
